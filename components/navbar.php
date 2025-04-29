@@ -3,9 +3,14 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Login</title>
 </head>
 <body>
-    login
+    <?php 
+        include_once("../config.php");
+    ?>
+    <nav>
+        navgation bar
+        <a href="<?php echo $BASE_PATH ?>/login/login.php">Log in</a>
+    </nav>
 </body>
 </html>
