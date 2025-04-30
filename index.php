@@ -67,7 +67,7 @@
     ?>
     <div class="login-container">
         <h1 class="title"><span class="csuf">CSUF</span> <span class="team">Volleyball Team</span></h1>
-        <form method="post" action="">
+        <form method="post" action="pages/login.php">
             <input type="text" name="username" placeholder="Username" required>
             <input type="password" name="password" placeholder="Password" required>
             <button type="submit" class="btn-login">Log In</button>
