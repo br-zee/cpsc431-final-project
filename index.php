@@ -67,7 +67,7 @@ error_reporting(E_ALL);
         if ($priority >= 2) {
             /* render Coach abilities and below: page for updating/deleting statistics */ 
             ?>
-            <form action="" method="GET">
+            <form action="editStatistics.php" method="GET">
                 <input type="hidden" name="page" value=2>
                 <button type="submit">Edit Statistics</button>
             </form>
