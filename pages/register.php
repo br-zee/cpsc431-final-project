@@ -82,12 +82,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         <?php if ($success): ?>
             <div class="message success"><?= htmlspecialchars($success) ?></div>
         <?php endif; ?>
-        <form method="post" action="register.php">
+        <form method="post" action="">
             <input type="text" name="username" placeholder="Enter new username" value="<?= isset($username) ? htmlspecialchars($username) : '' ?>" required>
             <input type="password" name="password" placeholder="Enter new password" required>
             <input type="password" name="confirm_password" placeholder="Confirm new password" required>
             <button type="submit" class="btn-create">Create Account</button>
-            <button type="button" class="btn-back" onclick="window.location.href='index.php'">Back</button>
+            <button type="button" class="btn-back" onclick="window.location.href='../index.php'">Back</button>
         </form>
     </div>
 </body>

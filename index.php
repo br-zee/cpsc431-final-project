@@ -63,16 +63,16 @@
 </head>
 <body>
     <?php 
-        include_once("./head.php");
+        // include_once("./head.php");
     ?>
     <div class="login-container">
         <h1 class="title"><span class="csuf">CSUF</span> <span class="team">Volleyball Team</span></h1>
-        <form method="post" action="login.php">
+        <form method="post" action="">
             <input type="text" name="username" placeholder="Username" required>
             <input type="password" name="password" placeholder="Password" required>
             <button type="submit" class="btn-login">Log In</button>
         </form>
-        <button type="button" class="btn-register" onclick="window.location.href='register.php'">Register</button>
+        <button type="button" class="btn-register" onclick="window.location.href='pages/register.php'">Register</button>
     </div>
 </body>
 </html>
