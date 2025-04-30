@@ -7,12 +7,12 @@
 <body>
     <?php 
         require_once __DIR__.'/../config.php';
+        session_start();
     ?>
     <nav>
         <a href=<?php echo $BASE_URL.'/index.php' ?>>Home</a>
 
         <?php 
-            session_start();
             $linkUrl = $BASE_URL.'/pages/login.php';
             $userOption = 'Log in';
 

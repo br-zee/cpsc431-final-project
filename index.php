@@ -3,9 +3,9 @@
 include_once("components/navbar.php");
 include_once("protected/adaptation.php");
 
-ini_set('display_errors', '1');
-ini_set('display_startup_errors', '1');
-error_reporting(E_ALL);
+// ini_set('display_errors', '1');
+// ini_set('display_startup_errors', '1');
+// error_reporting(E_ALL);
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -42,15 +42,85 @@ error_reporting(E_ALL);
 
         $stmt->close();
         $db->close();
-
-
-        if ($priority >= 0) { /* render only game statistics*/ }
-        if ($priority >= 1) { /* render Player abilities: page for viewing/changing personal info */ }
-        if ($priority >= 2) { /* render Coach abilities and below: page for updating/deleting statistics */ }
-        if ($priority >= 3) { /* render Manager abilities and below: page for updating/deleting all, linling players to roles */ }   
     ?>
+
+    <div class="page-buttons">
+        <?php 
+        if ($priority >= 0) {
+            /* render only game statistics*/ 
+            ?>
+            <form action="" method="GET">
+                <input type="hidden" name="page" value=0>
+                <button type="submit">View Game Data</button>
+            </form>
+            <?php                    
+        }
+        if ($priority >= 1) {
+            /* render Player abilities: page for viewing/changing personal info */ 
+            ?>
+            <form action="" method="GET">
+                <input type="hidden" name="page" value=1>
+                <button type="submit">Edit Personal Info</button>
+            </form>
+            <?php
+        }
+        if ($priority >= 2) {
+            /* render Coach abilities and below: page for updating/deleting statistics */ 
+            ?>
+            <form action="" method="GET">
+                <input type="hidden" name="page" value=2>
+                <button type="submit">Edit Statistics</button>
+            </form>
+            <?php
+        }
+        if ($priority >= 3) { 
+            /* render Manager abilities and below: page for updating/deleting all, linling players to roles */ 
+            ?>
+            <form action="" method="GET">
+                <input type="hidden" name="page" value=3>
+                <button type="submit">Add User to Role</button>
+            </form>
+            <?php
+        }   
+        ?>
+    </div>
+
+    <div class="content">
+        <?php 
+        if ($_GET['page'] == 0 && $priority >= 0) {
+            include_once('components/guestview.php');
+        }
+        if ($_GET['page'] == 1 && $priority >= 1) {
+            include_once('components/playerview.php');
+        }
+        if ($_GET['page'] == 2 && $priority >= 2) {
+            include_once('components/coachview.php');
+        }
+        if ($_GET['page'] == 3 && $priority >= 3) {
+            include_once('components/managerview.php');
+        }
+        ?>
+    </div>
+
 </body>
 </html>
 
 <style>
+    .page-buttons {
+        display: flex;
+        justify-content: center;
+        gap: 20px;
+        margin-block: 20px;
+    }
+
+    .page-buttons button {
+        border: none;
+        background: white;
+        border-radius: 50px;
+        padding: 10px 20px;
+        cursor: pointer;
+    }
+    .page-buttons button:hover {
+        background: lightgray;
+    }
 </style>
