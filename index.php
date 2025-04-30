@@ -49,7 +49,7 @@ error_reporting(E_ALL);
         if ($priority >= 0) {
             /* render only game statistics*/ 
             ?>
-            <form action="viewGameData.php" method="GET">
+            <form action="" method="GET">
                 <input type="hidden" name="page" value=0>
                 <button type="submit">View Game Data</button>
             </form>
@@ -67,7 +67,7 @@ error_reporting(E_ALL);
         if ($priority >= 2) {
             /* render Coach abilities and below: page for updating/deleting statistics */ 
             ?>
-            <form action="editStatistics.php" method="GET">
+            <form action="" method="GET">
                 <input type="hidden" name="page" value=2>
                 <button type="submit">Edit Statistics</button>
             </form>
@@ -87,17 +87,19 @@ error_reporting(E_ALL);
 
     <div class="content">
         <?php 
-        if ($_GET['page'] == 0 && $priority >= 0) {
-            include_once('components/guestview.php');
-        }
-        if ($_GET['page'] == 1 && $priority >= 1) {
-            include_once('components/playerview.php');
-        }
-        if ($_GET['page'] == 2 && $priority >= 2) {
-            include_once('components/coachview.php');
-        }
-        if ($_GET['page'] == 3 && $priority >= 3) {
-            include_once('components/managerview.php');
+        if (isset($_GET['page'])) {
+            if ($_GET['page'] == 0) {
+                include_once('components/viewGameData.php');
+            }
+            if ($_GET['page'] == 1 && $priority >= 1) {
+                include_once('components/editPlayerInfo.php');
+            }
+            if ($_GET['page'] == 2 && $priority >= 2) {
+                include_once('components/editStatistics.php');
+            }
+            if ($_GET['page'] == 3 && $priority >= 3) {
+                include_once('components/managerview.php');
+            }
         }
         ?>
     </div>

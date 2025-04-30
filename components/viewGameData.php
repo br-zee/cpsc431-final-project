@@ -1,13 +1,12 @@
 <?php
 // viewGameData.php
 
-session_start();
+// session_start();
 if (!isset($_SESSION['user'])) {
-    header('Location: index.php');
-    exit;
+    header('Location: ../index.php');
 }
 
-require_once __DIR__ . '/protected/adaptation.php';
+require_once __DIR__ . '/../protected/adaptation.php';
 
 $databaseConnect = new mysqli(DB_HOST, USER_NAME, USER_PASS, DB_NAME);
 if ($databaseConnect->connect_error) {
@@ -86,7 +85,9 @@ $databaseConnect->close();
   <meta charset="UTF-8">
   <title>Game & Player Stats</title>
   <style>
-
+    .content {
+      text-align: center;
+    }
     .game-list { list-style: none; padding: 0; max-width: 600px; margin: 20px auto; }
     .game-list li { margin: 8px 0; padding: 8px 12px; border-radius: 4px; font-weight: bold; }
     .game-list li.win  { background: rgba(30,144,255,0.1); color: #1e90ff; }
@@ -116,74 +117,74 @@ $databaseConnect->close();
   </style>
 </head>
 <body>
-  <h1>Home Team Game Results</h1>
-  <?php if (empty($games)): ?>
-    <p>No games found.</p>
-  <?php else: ?>
-    <ul class="game-list">
-      <?php foreach ($games as $g): ?>
-        <li class="<?= $g['result']==='win' ? 'win' : 'loss' ?>">
-          <?= date('M d, Y', strtotime($g['gameDate'])) ?>
-          vs <?= htmlspecialchars($g['teamName']) ?> (<?= htmlspecialchars($g['schoolName']) ?>)
-          — <?= ucfirst(htmlspecialchars($g['result'])) ?>
-        </li>
-      <?php endforeach; ?>
-    </ul>
-  <?php endif; ?>
-
-  <h1>Player Stats</h1>
-  <form method="get">
-    <label for="playerID">Select a player:</label>
-    <select name="playerID" id="playerID" onchange="this.form.submit()">
-      <option value="">-- choose --</option>
-      <?php foreach ($players as $p): ?>
-        <option 
-          value="<?= $p['playerID'] ?>"
-          <?= $selectedPlayerID===$p['playerID'] ? 'selected':'' ?>
-        >
-          <?= htmlspecialchars($p['firstName'].' '.$p['lastName']) ?>
-          (<?= htmlspecialchars($p['positionName']) ?>)
-        </option>
-      <?php endforeach; ?>
-    </select>
-  </form>
-
-  <?php if ($playerInfo): ?>
-    <h2>
-      Stats for <?= htmlspecialchars($playerInfo['firstName'].' '.$playerInfo['lastName']) ?>
-      — <?= htmlspecialchars($playerInfo['positionName']) ?>
-    </h2>
-    <?php if (empty($playerStats)): ?>
-      <p>No stats recorded for this player.</p>
+  <div class="content">
+    <h1>Home Team Game Results</h1>
+    <?php if (empty($games)): ?>
+      <p>No games found.</p>
     <?php else: ?>
-      <table>
-        <thead>
-          <tr>
-            <th>Date</th><th>Points</th><th>Assists</th>
-            <th>Attack%</th><th>Defend%</th><th>Set%</th><th>Serve%</th>
-          </tr>
-        </thead>
-        <tbody>
-          <?php foreach ($playerStats as $row): ?>
-            <tr>
-              <td><?= date('M d, Y', strtotime($row['gameDate'])) ?></td>
-              <td><?= htmlspecialchars($row['points']) ?></td>
-              <td><?= htmlspecialchars($row['assists']) ?></td>
-              <td><?= htmlspecialchars($row['attackSuccessRate']) ?></td>
-              <td><?= htmlspecialchars($row['defendSuccessRate']) ?></td>
-              <td><?= htmlspecialchars($row['settingRate']) ?></td>
-              <td><?= htmlspecialchars($row['serveRate']) ?></td>
-            </tr>
-          <?php endforeach; ?>
-        </tbody>
-      </table>
+      <ul class="game-list">
+        <?php foreach ($games as $g): ?>
+          <li class="<?= $g['result']==='win' ? 'win' : 'loss' ?>">
+            <?= date('M d, Y', strtotime($g['gameDate'])) ?>
+            vs <?= htmlspecialchars($g['teamName']) ?> (<?= htmlspecialchars($g['schoolName']) ?>)
+            — <?= ucfirst(htmlspecialchars($g['result'])) ?>
+          </li>
+        <?php endforeach; ?>
+      </ul>
     <?php endif; ?>
-  <?php endif; ?>
-
-  <div class="page-buttons">
-    <form action="index.php" method="get">
-      <button type="submit">← Back to Dashboard</button>
+    <h1>Player Stats</h1>
+    <form method="get">
+      <label for="playerID">Select a player:</label>
+      <input type="hidden" name="page" value=0>
+      <select name="playerID" id="playerID" onchange="this.form.submit()">
+        <option value="">-- choose --</option>
+        <?php foreach ($players as $p): ?>
+          <option
+            value="<?= $p['playerID'] ?>"
+            <?= $selectedPlayerID===$p['playerID'] ? 'selected':'' ?>
+          >
+            <?= htmlspecialchars($p['firstName'].' '.$p['lastName']) ?>
+            (<?= htmlspecialchars($p['positionName']) ?>)
+          </option>
+        <?php endforeach; ?>
+      </select>
     </form>
+    <?php if ($playerInfo): ?>
+      <h2>
+        Stats for <?= htmlspecialchars($playerInfo['firstName'].' '.$playerInfo['lastName']) ?>
+        — <?= htmlspecialchars($playerInfo['positionName']) ?>
+      </h2>
+      <?php if (empty($playerStats)): ?>
+        <p>No stats recorded for this player.</p>
+      <?php else: ?>
+        <table>
+          <thead>
+            <tr>
+              <th>Date</th><th>Points</th><th>Assists</th>
+              <th>Attack%</th><th>Defend%</th><th>Set%</th><th>Serve%</th>
+            </tr>
+          </thead>
+          <tbody>
+            <?php foreach ($playerStats as $row): ?>
+              <tr>
+                <td><?= date('M d, Y', strtotime($row['gameDate'])) ?></td>
+                <td><?= htmlspecialchars($row['points']) ?></td>
+                <td><?= htmlspecialchars($row['assists']) ?></td>
+                <td><?= htmlspecialchars($row['attackSuccessRate']) ?></td>
+                <td><?= htmlspecialchars($row['defendSuccessRate']) ?></td>
+                <td><?= htmlspecialchars($row['settingRate']) ?></td>
+                <td><?= htmlspecialchars($row['serveRate']) ?></td>
+              </tr>
+            <?php endforeach; ?>
+          </tbody>
+        </table>
+      <?php endif; ?>
+    <?php endif; ?>
+    <div class="page-buttons">
+      <form action="index.php" method="get">
+        <button type="submit">← Back to Dashboard</button>
+      </form>
+    </div>
   </div>
 </body>
 </html>
