@@ -1,13 +1,20 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login Page</title>
+    <link rel="stylesheet" href="../global.css" />
+</head>
+<body>
+
 <?php
 // login.php - Process login from index.php
 
 include_once("../protected/adaptation.php");
+include_once("../components/navbar.php");
 
 session_start();
-
-ini_set('display_errors', '1');
-ini_set('display_startup_errors', '1');
-error_reporting(E_ALL);
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
@@ -21,7 +28,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 
     $query = "
-        SELECT *
+        SELECT userID, userEmail, roleID
         FROM Account
         WHERE userID = ? AND userPassword = ?";
 
@@ -30,28 +37,90 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $stmt->execute();
 
     $stmt->store_result();
-    $stmt->bind_result($userID, $userPassword, $userEmail, $roleID);    
+    $stmt->bind_result($userID, $userEmail, $roleID);    
 
     $stmt->fetch();
 
     $stmt->close();
     $db->close();
 
-    return;
-
     // Check credentials
-    if (isset($accounts[$username]) && $accounts[$username] === $password) {
+    if ($userID) {
         // Successful login
         $_SESSION['user'] = $username;
-        header('Location: managerview.php');
+        $_SESSION['email'] = $userEmail;
+        $_SESSION['role'] = $roleID;
+
+        header('Location: ../index.php');
         exit;
     } else {
         // Invalid credentials
-        header('Location: ../index.php?error=invalid');
+        header('Location: ?error=invalid');
         exit;
     }
-} else {
-    // Redirect to login form if accessed directly
-    header('Location: index.php');
-    exit;
 }
+?>
+
+    <div class="login-container">
+        <h1 class="title"><span class="csuf">CSUF</span> <span class="team">Volleyball Team</span></h1>
+        <form method="post" action="">
+            
+            <?php if ($_GET['error'] == 'invalid') { ?>
+            <p style="color: red">Invalid username/password</p>   
+            <?php } ?>
+
+            <input type="text" name="username" placeholder="Username" required>
+            <input type="password" name="password" placeholder="Password" required>
+            <button type="submit" class="btn-login">Log In</button>
+        </form>
+        <button type="button" class="btn-register" onclick="window.location.href='register.php'">Register</button>
+    </div>
+    
+</body>
+</html>
+
+<style>
+    .login-container {
+        width: 30%;
+        max-width: 300px;
+        margin: 50px auto;
+        background: #fff;
+        padding: 20px;
+        border-radius: 8px;
+        box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        text-align: center;
+    }
+    .title .csuf {
+        color: blue;
+    }
+    .title .team {
+        color: orange;
+    }
+    .title {
+        margin-bottom: 20px;
+        font-size: 2em;
+    }
+    input {
+        display: block;
+        width: 100%;
+        padding: 10px;
+        margin-bottom: 10px;
+        box-sizing: border-box;
+    }
+    button {
+        padding: 10px 20px;
+        margin: 5px;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+        font-size: 1em;
+    }
+    .btn-login {
+        background-color: #007BFF;
+        color: #fff;
+    }
+    .btn-register {
+        background-color: #6c757d;
+        color: #fff;
+    }
+</style>

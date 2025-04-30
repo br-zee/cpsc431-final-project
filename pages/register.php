@@ -1,10 +1,7 @@
 <?php
 // register.php - Basic Registration Page for CSUF Volleyball Team
 include_once("../protected/adaptation.php");
-
-ini_set('display_errors', '1');
-ini_set('display_startup_errors', '1');
-error_reporting(E_ALL);
+include_once("../components/navbar.php");
 
 $error = '';
 $success = '';
@@ -84,6 +81,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="../global.css" />
     <title>Register - CSUF Volleyball Team</title>
 </head>
 <body>
@@ -101,23 +99,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             <input type="password" name="password" placeholder="Enter new password" required>
             <input type="password" name="confirm_password" placeholder="Confirm new password" required>
             <button type="submit" class="btn-create">Create Account</button>
-            <button type="button" class="btn-back" onclick="window.location.href='../index.php'">Back</button>
+            <button type="button" class="btn-back" onclick="window.location.href='login.php'">Back</button>
         </form>
     </div>
 </body>
 </html>
 
 <style>
-    body {
-        font-family: Arial, sans-serif;
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        height: 100vh;
-        margin: 0;
-        background-color: #f5f5f5;
-    }
     .register-container {
+        width: 30%;
+        max-width: 300px;
+        margin: 50px auto;
         background: #fff;
         padding: 20px;
         border-radius: 8px;
