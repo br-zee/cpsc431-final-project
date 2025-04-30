@@ -3,9 +3,9 @@
 include_once("components/navbar.php");
 include_once("protected/adaptation.php");
 
-// ini_set('display_errors', '1');
-// ini_set('display_startup_errors', '1');
-// error_reporting(E_ALL);
+ini_set('display_errors', '1');
+ini_set('display_startup_errors', '1');
+error_reporting(E_ALL);
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -49,7 +49,7 @@ include_once("protected/adaptation.php");
         if ($priority >= 0) {
             /* render only game statistics*/ 
             ?>
-            <form action="" method="GET">
+            <form action="viewGameData.php" method="GET">
                 <input type="hidden" name="page" value=0>
                 <button type="submit">View Game Data</button>
             </form>
