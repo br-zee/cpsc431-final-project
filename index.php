@@ -7,6 +7,7 @@
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" src="./home.css"/>
     <title>CSUF Volleyball Team</title>
     <style>
         body {
@@ -61,6 +62,9 @@
     </style>
 </head>
 <body>
+    <?php 
+        include_once("./head.php");
+    ?>
     <div class="login-container">
         <h1 class="title"><span class="csuf">CSUF</span> <span class="team">Volleyball Team</span></h1>
         <form method="post" action="login.php">
