@@ -86,18 +86,17 @@ $databaseConnect->close();
   <meta charset="UTF-8">
   <title>Game & Player Stats</title>
   <style>
-    /* game list styling */
+
     .game-list { list-style: none; padding: 0; max-width: 600px; margin: 20px auto; }
     .game-list li { margin: 8px 0; padding: 8px 12px; border-radius: 4px; font-weight: bold; }
     .game-list li.win  { background: rgba(30,144,255,0.1); color: #1e90ff; }
     .game-list li.loss { background: rgba(255,165,0,0.1);   color: #ffa500; }
 
-    /* table styling */
     table { border-collapse: collapse; width: 100%; max-width: 800px; margin: 20px auto; }
     th, td { border: 1px solid #ccc; padding: 8px; text-align: center; }
     th { background: #f4f4f4; }
 
-    /* your existing page-buttons style */
+    
     .page-buttons {
         display: flex;
         justify-content: center;
