@@ -71,45 +71,62 @@ if ($selectedPlayerID) {
     $playerStats = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
     $stmt->close();
 }
-
 $databaseConnect->close();
+
+
+function getSetStats($gameID) {
+
+  $databaseConnect = new mysqli(DB_HOST, USER_NAME, USER_PASS, DB_NAME);
+  if ($databaseConnect->connect_error) {
+      die("Connection failed: " . htmlspecialchars($databaseConnect->connect_error));
+  }
+
+  $query = '
+  SELECT setNumber, setTimeMins, setTimeSecs, homeScore, oppScore FROM SetStats
+  WHERE gameID = ?
+  ';
+
+  $stmt = $databaseConnect->prepare($query);
+  $stmt->bind_param('s', $gameID);
+  $stmt->execute();
+  $result = $stmt->get_result();
+  $sets = $result->fetch_all();
+
+  $setArr = [];
+  foreach($sets as $set) {
+    array_push($setArr,
+      (object)[
+        'setNumber' => $set[0],
+        'setTimeMins' => $set[1],
+        'setTimeSecs' => $set[2],
+        'homeScore' => $set[3],
+        'oppScore' => $set[4]
+      ]
+    );
+  }
+  
+  $stmt->free_result();
+  $result->free_result();
+  $databaseConnect->close();
+
+  return $setArr;
+}
+
 ?>
+
+<script>
+  function openGame(e) {
+    const gameId = e.target.value;
+    const gameStatsBox = e.target.querySelector(".game-stats");
+    gameStatsBox.style.display = gameStatsBox.style.display == 'block' ? 'none' : 'block';
+  }
+</script>
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
   <title>Game & Player Stats</title>
-  <style>
-    .content {
-      text-align: center;
-    }
-    .game-list { list-style: none; padding: 0; max-width: 600px; margin: 20px auto; }
-    .game-list li { margin: 8px 0; padding: 8px 12px; border-radius: 4px; font-weight: bold; }
-    .game-list li.win  { background: rgba(30,144,255,0.1); color: #1e90ff; }
-    .game-list li.loss { background: rgba(255,165,0,0.1);   color: #ffa500; }
-
-    table { border-collapse: collapse; width: 100%; max-width: 800px; margin: 20px auto; }
-    th, td { border: 1px solid #ccc; padding: 8px; text-align: center; }
-    th { background: #f4f4f4; }
-
-    
-    .page-buttons {
-        display: flex;
-        justify-content: center;
-        gap: 20px;
-        margin-block: 20px;
-    }
-    .page-buttons button {
-        border: none;
-        background: white;
-        border-radius: 50px;
-        padding: 10px 20px;
-        cursor: pointer;
-    }
-    .page-buttons button:hover {
-        background: lightgray;
-    }
-  </style>
 </head>
 <body>
   <div class="content">
@@ -119,10 +136,49 @@ $databaseConnect->close();
     <?php else: ?>
       <ul class="game-list">
         <?php foreach ($games as $g): ?>
-          <li class="<?= $g['result']==='win' ? 'win' : 'loss' ?>">
+          <li class="<?= $g['result']==='win' ? 'win' : 'loss' ?> game" onclick="openGame(event)" value=<?=$g['gameID']?>>
             <?= date('M d, Y', strtotime($g['gameDate'])) ?>
             vs <?= htmlspecialchars($g['teamName']) ?> (<?= htmlspecialchars($g['schoolName']) ?>)
             — <?= ucfirst(htmlspecialchars($g['result'])) ?>
+
+            <div class="game-stats" style="display:none;">
+              <?php 
+                $sets = getSetStats($g['gameID']);
+                
+                foreach($sets as $set) {
+                  ?>
+                  <table>
+                    <thead>
+                      <th colspan=2>Set <?=$set->setNumber?></th>
+                    </th>
+                    <thead>
+                    <tbody>
+                      <tr>
+                        <th>Time</th>
+                        <td>
+                          <?=$set->setTimeMins.':'.$set->setTimeSecs?>
+                        </td>
+                      </tr>
+                      <tr>
+                        <th>Home score</th>
+                        <td>
+                          <?=$set->homeScore?>
+                        </td>
+                      </tr>
+                      <tr>
+                        <th>Opponent Score</th>
+                        <td>
+                          <?=$set->oppScore?>
+                        </td>
+                      </tr>
+                    </tbody>
+
+                    </tr>
+                  </table>
+                  <?php 
+                }
+              ?>
+            </div>
           </li>
         <?php endforeach; ?>
       </ul>
@@ -183,3 +239,42 @@ $databaseConnect->close();
   </div>
 </body>
 </html>
+
+<style>
+  .content {
+    text-align: center;
+  }
+  .game-list { list-style: none; padding: 0; max-width: 600px; margin: 20px auto; }
+  .game-list li { margin: 8px 0; padding: 8px 12px; border-radius: 4px; font-weight: bold; opacity: 0.7; user-select: none; }
+  .game-list li.win  { background: rgba(30,144,255,0.1); color: #1e90ff; }
+  .game-list li.loss { background: rgba(255,165,0,0.1);   color: #ffa500; }
+  .game-list .game:hover {
+    opacity: 1;
+    cursor: pointer;
+  }
+  .game-list .game-stats {
+    pointer-events: none;
+  }
+
+  table { border-collapse: collapse; width: 100%; max-width: 800px; margin: 20px auto; }
+  th, td { border: 1px solid #ccc; padding: 8px; text-align: center; }
+  th { background: #f4f4f4; }
+
+  
+  .page-buttons {
+      display: flex;
+      justify-content: center;
+      gap: 20px;
+      margin-block: 20px;
+  }
+  .page-buttons button {
+      border: none;
+      background: white;
+      border-radius: 50px;
+      padding: 10px 20px;
+      cursor: pointer;
+  }
+  .page-buttons button:hover {
+      background: lightgray;
+  }
+</style>

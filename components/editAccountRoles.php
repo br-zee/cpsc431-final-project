@@ -1,6 +1,5 @@
 <?php
 // managerview.php - Protected manager view
-// session_start();
 
 // Simple check to prevent direct access without login
 if (!isset($_SESSION['user'])) {
@@ -19,29 +18,12 @@ if (!isset($_SESSION['user'])) {
 </head>
 <body>
     <div class="container">
-        <h2>Welcome, <?= htmlspecialchars($_SESSION['user']) ?></h2>
-        <form action="pages/logout.php" method="post">
-            <button type="submit">Log Out</button>
-        </form>
+        
     </div>
 </body>
 </html>
 
 <style>
     .container {
-        background: #fff;
-        padding: 20px;
-        border-radius: 8px;
-        box-shadow: 0 0 10px rgba(0,0,0,0.1);
-        text-align: center;
-    }
-    .container button {
-        padding: 10px 20px;
-        border: none;
-        border-radius: 4px;
-        cursor: pointer;
-        font-size: 1em;
-        background-color: #dc3545;
-        color: #fff;
     }
 </style>

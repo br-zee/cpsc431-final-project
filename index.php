@@ -94,7 +94,7 @@ include_once("protected/adaptation.php");
                 include_once('components/editStatistics.php');
             }
             if ($_GET['page'] == 3 && $priority >= 3) {
-                include_once('components/managerview.php');
+                include_once('components/editAccountRoles.php');
             }
         }
         else include_once('components/viewGameData.php');
