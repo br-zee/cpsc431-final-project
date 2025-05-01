@@ -7,21 +7,25 @@
 <body>
     <?php 
         require_once __DIR__.'/../config.php';
-        session_start();
+        session_start();        
+
+        ini_set('display_errors', '1');
+        ini_set('display_startup_errors', '1');
+        error_reporting(E_ALL);
     ?>
     <nav>
-        <a href=<?php echo $BASE_URL.'/index.php' ?>>Home</a>
+        <a href=<?= $BASE_URL.'/index.php' ?>>Home</a>
 
         <?php 
             $linkUrl = $BASE_URL.'/pages/login.php';
             $userOption = 'Log in';
 
-            if ($_SESSION['user']) {
+            if (isset($_SESSION['user']) && $_SESSION['user']) {
                 $linkUrl = $BASE_URL.'/pages/logout.php';      
                 $userOption = 'Log out';         
             }
         ?>
-        <a href=<?php echo $linkUrl ?>> <?php echo $userOption ?> </a>
+        <a href=<?= $linkUrl ?>> <?= $userOption ?> </a>
     </nav>
 </body>
 </html>

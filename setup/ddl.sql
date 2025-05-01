@@ -40,6 +40,17 @@ CREATE TABLE OpponentTeam (
     schoolName VARCHAR(100) NOT NULL
 );
 
+CREATE TABLE AddressInfo (
+    userID VARCHAR(100) NOT NULL,
+    street VARCHAR(100) NOT NULL,
+    building VARCHAR(10) DEFAULT NULL,
+    city VARCHAR(100) NOT NULL,
+    country VARCHAR(5) NOT NULL,
+    zipCode INT(10) UNSIGNED NOT NULL,
+
+    FOREIGN KEY(userID) REFERENCES Account(userID) ON DELETE CASCADE
+);
+
 CREATE TABLE Player (
     playerID INT(10) UNSIGNED NOT NULL PRIMARY KEY AUTO_INCREMENT,
     teamID INT(10) UNSIGNED NOT NULL,
@@ -126,7 +137,12 @@ INSERT INTO Account (userID, userPassword, userEmail, roleID) VALUES
     ("testCoach", "iAmCoach!", "brzee@csu.fullerton.edu", "Coach"),
     ("testManager", "iAmManager!", 'brzee@csu,fullerton.edu', "Manager"),
 
-    ("terry_jones", "iAmTerry!", "terryjones@gmail.com", "Player");
+    ("terry_jones", "iAmTerry!", "terryjones@gmail.com", "Player"),
+    ("volley_ball", "iAmVolley!", "firstnamevolleylastnameball@gmail.com", "Player"),
+    ("bob_baller", "iAmBob!", "bobballer@gmail.com", "Player"),
+    ("balley_voll", "iAmBalley!", "balleyvall@gmail.com", "Player"),
+    ("hitter_guy", "iAmHitter!", "hitterguy@gmail.com", "Player"),
+    ("mr_setterman", "iAmSetterman!", "mrsetterman@gmail.com", "Player");
 
 INSERT INTO HomeTeam (teamName) VALUES
     ("Cal State Slammers");
@@ -149,13 +165,18 @@ INSERT INTO Positions VALUES
     ("DS", "Defensive Specialist"),
     ("SS", "Serving Specialist");
 
+INSERT INTO AddressInfo (userID, street, city, country, zipCode) VALUES
+    ("terry_jones", "503 W St", "Fullerton", "CA", 12345),
+    ("volley_ball", "100 Net Dr", "Fullerton", "CA", 54321),
+    ("bob_baller", "230 Baller St", "Fullerton", "CA", 98765);
+
 INSERT INTO Player (teamID, firstName, lastName, positionID, userID) VALUES
     (1, "Terry", "Jones", "L", "terry_jones"),
-    (1, "Volley", "Ball", "S", DEFAULT),
-    (1, "Mr", "Setterman", "S", DEFAULT),
-    (1, "Balley", "Voll", "OH", DEFAULT),
-    (1, "Hitter", "Guy", "OH", DEFAULT),
-    (1, "Bob", "Baller", "OP", DEFAULT),
+    (1, "Volley", "Ball", "S", "volley_ball"),
+    (1, "Mr", "Setterman", "S", 'mr_setterman'),
+    (1, "Balley", "Voll", "OH", "balley_voll"),
+    (1, "Hitter", "Guy", "OH", 'hitter_guy'),
+    (1, "Bob", "Baller", "OP", "bob_baller"),
     (1, "Benjamin", "Ballman", "OP", DEFAULT),
     (1, "Jordan", "Mikael", "MB", DEFAULT),
     (1, "Big", "Strongman", "MB", DEFAULT),
@@ -181,5 +202,9 @@ INSERT INTO SetStats VALUES
     (2, 1, 18, 34, 19, 25);
 
 INSERT INTO PlayerStats VALUES
+    -- playerID, gameID, points, assists, attackSuccessRate, defendSuccessRate, settingRate, serveRate
     (1, 1, 12, 18, 0.45, 0.65, 0.85, 0.78),
-    (2, 1, 15, 7, 0.55, 0.51, 0.23, 0.67);
+    (2, 1, 15, 7, 0.55, 0.51, 0.23, 0.67),
+    (3, 1, 18, 10, 0.75, 0.21, 0.33, 0.60),
+    (4, 1, 3, 1, 0.15, 0.11, 0.13, 0.10),
+    (1, 2, 14, 10, 0.54, 0.64, 0.35, 0.65);

@@ -1,11 +1,6 @@
 <?php
 // viewGameData.php
 
-// session_start();
-if (!isset($_SESSION['user'])) {
-    header('Location: ../index.php');
-}
-
 require_once __DIR__ . '/../protected/adaptation.php';
 
 $databaseConnect = new mysqli(DB_HOST, USER_NAME, USER_PASS, DB_NAME);

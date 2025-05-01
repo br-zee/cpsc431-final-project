@@ -2,10 +2,6 @@
 // index.php - CSUF Volleyball Team Login Page
 include_once("components/navbar.php");
 include_once("protected/adaptation.php");
-
-ini_set('display_errors', '1');
-ini_set('display_startup_errors', '1');
-error_reporting(E_ALL);
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -40,7 +36,7 @@ error_reporting(E_ALL);
 
         $stmt->fetch();
 
-        $stmt->close();
+        $stmt->free_result();
         $db->close();
     ?>
 
@@ -101,6 +97,7 @@ error_reporting(E_ALL);
                 include_once('components/managerview.php');
             }
         }
+        else include_once('components/viewGameData.php');
         ?>
     </div>
 
