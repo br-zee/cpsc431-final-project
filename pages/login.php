@@ -14,8 +14,6 @@
 include_once("../protected/adaptation.php");
 include_once("../components/navbar.php");
 
-session_start();
-
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     $username = $_POST['username'] ?? '';
@@ -65,7 +63,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         <h1 class="title"><span class="csuf">CSUF</span> <span class="team">Volleyball Team</span></h1>
         <form method="post" action="">
             
-            <?php if ($_GET['error'] == 'invalid') { ?>
+            <?php if (isset($_GET['error']) && $_GET['error'] == 'invalid') { ?>
             <p style="color: red">Invalid username/password</p>   
             <?php } ?>
 

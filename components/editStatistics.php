@@ -40,7 +40,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $ins->execute();
         $ins->close();
 
-        header("Location: editStatistics.php?playerID={$pid}");
+        header("Location: ?page=2&playerID={$pid}");
         exit;
     }
 
@@ -57,7 +57,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $del->execute();
         $del->close();
 
-        header("Location: editStatistics.php?playerID={$pid}");
+        header("Location: ?page=2&playerID={$pid}");
         exit;
     }
 }
@@ -120,7 +120,7 @@ $databaseConnect->close();
   <style>
     .content { font-family: sans-serif; max-width: 900px; margin: 20px auto; padding: 0 10px; }
     h1, h2 { text-align: center; }
-    form { margin: 20px 0; display: flex; flex-direction: column; align-items: center; }
+    .content form { margin: 20px 0; display: flex; flex-direction: column; align-items: center; }
     label { margin-bottom: 8px; font-weight: bold; }
     select, input[type="number"], input[type="text"] {
       padding: 8px; width: 200px; margin-bottom: 12px; border: 1px solid #ccc; border-radius: 4px;
@@ -138,7 +138,6 @@ $databaseConnect->close();
       border-radius: 50px;
       padding: 10px 20px;
       cursor: pointer;
-      color: #fff;
       font-weight: bold;
       background: #1e90ff;  /* DodgerBlue */
     }
@@ -150,7 +149,6 @@ $databaseConnect->close();
       border-radius: 50px;
       padding: 10px 20px;
       cursor: pointer;
-      color: #fff;
       font-weight: bold;
       background: #ffa500;  /* Orange */
     }
@@ -192,7 +190,7 @@ $databaseConnect->close();
       <?php if (empty($allGames)): ?>
         <p style="text-align:center;">No available games to add stats for.</p>
       <?php else: ?>
-        <form method="post">
+        <form method="post" action="">
           <input type="hidden" name="playerID" value="<?= $selectedPlayerID ?>">
           <label for="gameAdd">Game:</label>
           <select name="gameID" id="gameAdd" required>
