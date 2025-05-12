@@ -24,7 +24,7 @@ include_once("protected/adaptation.php");
 
     <div class="page-buttons">
         <?php 
-        if ($_SESSION['priority'] >= 0) {
+        if (isset($_SESSION['priority']) && $_SESSION['priority'] >= 0) {
             /* render only game statistics*/ 
             ?>
             <form action="" method="GET">
@@ -33,7 +33,7 @@ include_once("protected/adaptation.php");
             </form>
             <?php                    
         }
-        if ($_SESSION['priority'] >= 1) {
+        if (isset($_SESSION['priority']) && $_SESSION['priority'] >= 1) {
             /* render Player abilities: page for viewing/changing personal info */ 
             ?>
             <form action="" method="GET">
@@ -42,7 +42,7 @@ include_once("protected/adaptation.php");
             </form>
             <?php
         }
-        if ($_SESSION['priority'] >= 2) {
+        if (isset($_SESSION['priority']) && $_SESSION['priority'] >= 2) {
             /* render Coach abilities and below: page for updating/deleting statistics */ 
             ?>
             <form action="" method="GET">
@@ -51,7 +51,7 @@ include_once("protected/adaptation.php");
             </form>
             <?php
         }
-        if ($_SESSION['priority'] >= 3) { 
+        if (isset($_SESSION['priority']) && $_SESSION['priority'] >= 3) { 
             /* render Manager abilities and below: page for updating/deleting all, linling players to roles */ 
             ?>
             <form action="" method="GET">
@@ -69,13 +69,13 @@ include_once("protected/adaptation.php");
             if ($_GET['page'] == 0) {
                 include_once('components/viewGameData.php');
             }
-            if ($_GET['page'] == 1 && $_SESSION['priority'] >= 1) {
+            if ($_GET['page'] == 1 && isset($_SESSION['priority']) && $_SESSION['priority'] >= 1) {
                 include_once('components/editPlayerInfo.php');
             }
-            if ($_GET['page'] == 2 && $_SESSION['priority'] >= 2) {
+            if ($_GET['page'] == 2 && isset($_SESSION['priority']) && $_SESSION['priority'] >= 2) {
                 include_once('components/editStatistics.php');
             }
-            if ($_GET['page'] == 3 && $_SESSION['priority'] >= 3) {
+            if ($_GET['page'] == 3 && isset($_SESSION['priority']) && $_SESSION['priority'] >= 3) {
                 include_once('components/editAccountRoles.php');
             }
         }
