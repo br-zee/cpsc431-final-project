@@ -14,35 +14,17 @@ include_once("protected/adaptation.php");
 </head>
 <body>
     <?php 
-
-        $db = new mysqli(DB_HOST, USER_NAME, USER_PASS, DB_NAME);
-        if (mysqli_connect_errno()) {
-            echo "Could not connect to database. Please try again later.";
-            exit;
-        }
-
-        $query = "
-            SELECT rolePriority
-            FROM UserRole
-            WHERE roleID = ?
-        ";
-
-        $stmt = $db->prepare($query);
-        $stmt->bind_param('s', $_SESSION['role']);
-        $stmt->execute();
-
-        $stmt->store_result();
-        $stmt->bind_result($priority);    
-
-        $stmt->fetch();
-
-        $stmt->free_result();
-        $db->close();
+        // $db = new mysqli(DB_HOST, USER_NAME, USER_PASS, DB_NAME);
+        // if (mysqli_connect_errno()) {
+        //     echo "Could not connect to database. Please try again later.";
+        //     exit;
+        // }
+        // $db->close();
     ?>
 
     <div class="page-buttons">
         <?php 
-        if ($priority >= 0) {
+        if ($_SESSION['priority'] >= 0) {
             /* render only game statistics*/ 
             ?>
             <form action="" method="GET">
@@ -51,7 +33,7 @@ include_once("protected/adaptation.php");
             </form>
             <?php                    
         }
-        if ($priority >= 1) {
+        if ($_SESSION['priority'] >= 1) {
             /* render Player abilities: page for viewing/changing personal info */ 
             ?>
             <form action="" method="GET">
@@ -60,7 +42,7 @@ include_once("protected/adaptation.php");
             </form>
             <?php
         }
-        if ($priority >= 2) {
+        if ($_SESSION['priority'] >= 2) {
             /* render Coach abilities and below: page for updating/deleting statistics */ 
             ?>
             <form action="" method="GET">
@@ -69,7 +51,7 @@ include_once("protected/adaptation.php");
             </form>
             <?php
         }
-        if ($priority >= 3) { 
+        if ($_SESSION['priority'] >= 3) { 
             /* render Manager abilities and below: page for updating/deleting all, linling players to roles */ 
             ?>
             <form action="" method="GET">
@@ -87,13 +69,13 @@ include_once("protected/adaptation.php");
             if ($_GET['page'] == 0) {
                 include_once('components/viewGameData.php');
             }
-            if ($_GET['page'] == 1 && $priority >= 1) {
+            if ($_GET['page'] == 1 && $_SESSION['priority'] >= 1) {
                 include_once('components/editPlayerInfo.php');
             }
-            if ($_GET['page'] == 2 && $priority >= 2) {
+            if ($_GET['page'] == 2 && $_SESSION['priority'] >= 2) {
                 include_once('components/editStatistics.php');
             }
-            if ($_GET['page'] == 3 && $priority >= 3) {
+            if ($_GET['page'] == 3 && $_SESSION['priority'] >= 3) {
                 include_once('components/editAccountRoles.php');
             }
         }

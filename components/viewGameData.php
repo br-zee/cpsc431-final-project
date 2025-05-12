@@ -24,13 +24,12 @@ $stmt->execute();
 $games = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
 $stmt->close();
 
-// 2) fetch players + positions
+// 2) fetch players
 $sqlPlayers = "
-    SELECT p.playerID, p.firstName, p.lastName, pos.positionName
-    FROM Player p
-    JOIN Positions pos ON p.positionID = pos.positionID
-    WHERE p.teamID = ?
-    ORDER BY p.lastName, p.firstName
+    SELECT DISTINCT a.userID, a.firstName, a.lastName
+    FROM Account a, PlayerStats ps
+    WHERE a.teamID = ? AND ps.playerID = a.userID
+    ORDER BY a.lastName, a.firstName
 ";
 $stmt = $databaseConnect->prepare($sqlPlayers);
 $stmt->bind_param('i', $homeTeamID);
@@ -39,13 +38,13 @@ $players = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
 $stmt->close();
 
 // 3) if a player is selected, fetch that player’s stats
-$selectedPlayerID = isset($_GET['playerID']) ? (int)$_GET['playerID'] : null;
+$selectedPlayerID = isset($_GET['playerID']) ? $_GET['playerID'] : null;
 $playerStats = [];
 $playerInfo  = null;
 
 if ($selectedPlayerID) {
     foreach ($players as $p) {
-        if ($p['playerID'] === $selectedPlayerID) {
+        if ($p['userID'] === $selectedPlayerID) {
             $playerInfo = $p;
             break;
         }
@@ -59,14 +58,16 @@ if ($selectedPlayerID) {
           ps.attackSuccessRate,
           ps.defendSuccessRate,
           ps.settingRate,
-          ps.serveRate
+          ps.serveRate,
+          p.positionName
         FROM PlayerStats ps
+        JOIN Positions p ON ps.positionID = p.positionID
         JOIN GameStats g ON ps.gameID = g.gameID
         WHERE ps.playerID = ?
         ORDER BY g.gameDate ASC
     ";
     $stmt = $databaseConnect->prepare($sqlStats);
-    $stmt->bind_param('i', $selectedPlayerID);
+    $stmt->bind_param('s', $selectedPlayerID);
     $stmt->execute();
     $playerStats = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
     $stmt->close();
@@ -191,11 +192,10 @@ function getSetStats($gameID) {
         <option value="">-- choose --</option>
         <?php foreach ($players as $p): ?>
           <option
-            value="<?= $p['playerID'] ?>"
-            <?= $selectedPlayerID===$p['playerID'] ? 'selected':'' ?>
+            value="<?= $p['userID'] ?>"
+            <?= $selectedPlayerID===$p['userID'] ? 'selected': '' ?>
           >
             <?= htmlspecialchars($p['firstName'].' '.$p['lastName']) ?>
-            (<?= htmlspecialchars($p['positionName']) ?>)
           </option>
         <?php endforeach; ?>
       </select>
@@ -203,7 +203,6 @@ function getSetStats($gameID) {
     <?php if ($playerInfo): ?>
       <h2>
         Stats for <?= htmlspecialchars($playerInfo['firstName'].' '.$playerInfo['lastName']) ?>
-        — <?= htmlspecialchars($playerInfo['positionName']) ?>
       </h2>
       <?php if (empty($playerStats)): ?>
         <p>No stats recorded for this player.</p>
@@ -213,6 +212,7 @@ function getSetStats($gameID) {
             <tr>
               <th>Date</th><th>Points</th><th>Assists</th>
               <th>Attack%</th><th>Defend%</th><th>Set%</th><th>Serve%</th>
+              <th>Position</th>
             </tr>
           </thead>
           <tbody>
@@ -225,6 +225,7 @@ function getSetStats($gameID) {
                 <td><?= htmlspecialchars($row['defendSuccessRate']) ?></td>
                 <td><?= htmlspecialchars($row['settingRate']) ?></td>
                 <td><?= htmlspecialchars($row['serveRate']) ?></td>
+                <td><?= htmlspecialchars($row['positionName']) ?></td>
               </tr>
             <?php endforeach; ?>
           </tbody>

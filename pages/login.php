@@ -26,16 +26,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 
     $query = "
-        SELECT userID, userEmail, roleID
+        SELECT userID, userPassword, userEmail, rolePriority
         FROM Account
-        WHERE userID = ? AND userPassword = ?";
+        WHERE userID = ?";
 
     $stmt = $db->prepare($query);
-    $stmt->bind_param('ss', $username, $password);
+    $stmt->bind_param('s', $username);
     $stmt->execute();
 
     $stmt->store_result();
-    $stmt->bind_result($userID, $userEmail, $roleID);    
+    $stmt->bind_result($userID, $hashedPassword, $userEmail, $rolePriority);    
 
     $stmt->fetch();
 
@@ -43,11 +43,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $db->close();
 
     // Check credentials
-    if ($userID) {
+    if ($userID && password_verify($password, $hashedPassword)) {
         // Successful login
         $_SESSION['user'] = $username;
         $_SESSION['email'] = $userEmail;
-        $_SESSION['role'] = $roleID;
+        $_SESSION['priority'] = $rolePriority;
 
         header('Location: ../index.php');
         exit;

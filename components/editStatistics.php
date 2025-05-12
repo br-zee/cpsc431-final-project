@@ -16,13 +16,13 @@ if ($databaseConnect->connect_error) {
 }
 
 // Determine selected player
-$selectedPlayerID = isset($_GET['playerID']) ? (int)$_GET['playerID'] : null;
+$selectedPlayerID = isset($_GET['playerID']) ? $_GET['playerID'] : null;
 
 // Handle form submissions
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     // Add new stats
     if (isset($_POST['add_stats'], $_POST['playerID'], $_POST['gameID'])) {
-        $pid = (int)$_POST['playerID'];
+        $pid = $_POST['playerID'];
         $gid = (int)$_POST['gameID'];
         $pts = (int)$_POST['points'];
         $ast = (int)$_POST['assists'];
@@ -30,13 +30,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $def = (float)$_POST['defendSuccessRate'];
         $set = (float)$_POST['settingRate'];
         $srv = (float)$_POST['serveRate'];
+        $pos = $_POST['positionID'];
 
         $ins = $databaseConnect->prepare("
             INSERT INTO PlayerStats
-              (playerID, gameID, points, assists, attackSuccessRate, defendSuccessRate, settingRate, serveRate)
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+              (playerID, gameID, points, assists, attackSuccessRate, defendSuccessRate, settingRate, serveRate, positionID)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
         ");
-        $ins->bind_param('iiiddddd', $pid, $gid, $pts, $ast, $atk, $def, $set, $srv);
+        $ins->bind_param('siiddddds', $pid, $gid, $pts, $ast, $atk, $def, $set, $srv, $pos);
         $ins->execute();
         $ins->close();
 
@@ -45,7 +46,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 
     // Delete existing stat
-    if (isset($_POST['delete_stat'], $_POST['playerID'], $_POST['deleteGameID'])) {
+    else if (isset($_POST['delete_stat'], $_POST['playerID'], $_POST['deleteGameID'])) {
         $pid = (int)$_POST['playerID'];
         $gid = (int)$_POST['deleteGameID'];
 
@@ -62,11 +63,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 }
 
-// Fetch players for dropdown
+// Fetch players for dropdown, only for accounts with priority of 1 (player)
 $sqlPlayers = "
-    SELECT playerID, firstName, lastName
-    FROM Player
-    ORDER BY lastName, firstName
+    SELECT a.userID, a.firstName, a.lastName
+    FROM Account a
+    WHERE a.rolePriority = 1
+    ORDER BY a.lastName, a.firstName
 ";
 $res = $databaseConnect->query($sqlPlayers);
 $allPlayers = $res->fetch_all(MYSQLI_ASSOC);
@@ -87,11 +89,25 @@ if ($selectedPlayerID) {
          ORDER BY g.gameDate ASC
     ";
     $stmt = $databaseConnect->prepare($sqlGames);
-    $stmt->bind_param('ii', $homeTeamID, $selectedPlayerID);
+    $stmt->bind_param('is', $homeTeamID, $selectedPlayerID);
     $stmt->execute();
     $allGames = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
     $stmt->close();
 }
+
+// Fetch positions (for updating stats)
+$positions = [];
+$posQuery = '
+SELECT *
+FROM Positions
+';
+$stmt = $databaseConnect->prepare($posQuery);
+$stmt->bind_result($positionID, $positionName);
+$stmt->execute();
+while ($stmt->fetch()) {
+  array_push($positions, [$positionID, $positionName]);
+}
+$stmt->close();
 
 // Fetch past stats (for delete form)
 $pastStats = [];
@@ -104,7 +120,7 @@ if ($selectedPlayerID) {
          ORDER BY g.gameDate ASC
     ";
     $stmt = $databaseConnect->prepare($sqlPast);
-    $stmt->bind_param('i', $selectedPlayerID);
+    $stmt->bind_param('s', $selectedPlayerID);
     $stmt->execute();
     $pastStats = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
     $stmt->close();
@@ -167,8 +183,8 @@ $databaseConnect->close();
       <select name="playerID" id="playerID" onchange="this.form.submit()">
         <option value="">-- choose player --</option>
         <?php foreach ($allPlayers as $p): ?>
-          <option value="<?= $p['playerID'] ?>"
-            <?= $selectedPlayerID === (int)$p['playerID'] ? 'selected' : '' ?>>
+          <option value="<?= $p['userID'] ?>"
+            <?= $selectedPlayerID === $p['userID'] ? 'selected' : '' ?>>
             <?= htmlspecialchars($p['firstName'].' '.$p['lastName']) ?>
           </option>
         <?php endforeach; ?>
@@ -180,7 +196,7 @@ $databaseConnect->close();
         $playerName = "";
 
         foreach ($allPlayers as $pp) {
-          if ($pp['playerID'] == $selectedPlayerID) {
+          if ($pp['userID'] == $selectedPlayerID) {
             $playerName = $pp['firstName'].' '.$pp['lastName'];
             break;
           }
@@ -213,6 +229,19 @@ $databaseConnect->close();
           <input type="text" name="settingRate" pattern="0\.\d+" required>
           <label>Serve Rate (0–1):</label>
           <input type="text" name="serveRate" pattern="0\.\d+" required>
+          <label>Position:</label>
+          <select name="positionID" id="position" required>
+            <option value="" disabled selected>-- Select Position --</option>
+            <?php 
+            foreach($positions as $pos) {
+              ?>
+              <option value=<?= $pos[0] ?>>
+                <?= $pos[1] ?>
+              </option>
+              <?php 
+            }
+            ?>
+          </select>
           <div class="page-buttons">
             <button type="submit" name="add_stats" class="btn-add">Add Stats</button>
           </div>

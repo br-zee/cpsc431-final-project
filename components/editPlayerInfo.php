@@ -27,25 +27,51 @@ require_once __DIR__ . '/../protected/adaptation.php';
 
         $userID = $_POST['userID'];
 
-        // Updating Player's address information
+        // --- Check if address for user already exists ---
+        $addressExistsQuery = '
+        SELECT userID
+        FROM AddressInfo
+        WHERE userID = ?
+        ';
+        $stmt = $db->prepare($addressExistsQuery);
+        $stmt->bind_param('s', $userID);
+        $stmt->bind_result($userExists);
+        $stmt->execute();
+
+        $stmt->fetch();
+        $stmt->close();
+        // -----------------------------------------------
+
+
+        // User is trying to add/update address
         if (isset($_POST['street'])) {
+
             $street = $_POST['street'];
             $building = $_POST['building'];
             $city = $_POST['city'];
             $country = $_POST['country'];
             $zipCode = $_POST['zip'];
 
-            $query = '
-            UPDATE AddressInfo
-            SET street = ?, building = ?, city = ?, country = ?, zipCode = ?
-            WHERE userID = ?
-            ';
-
+            // User exists, update player address info
+            if ($userExists) {
+                $query = '
+                UPDATE AddressInfo
+                SET street = ?, building = ?, city = ?, country = ?, zipCode = ?
+                WHERE userID = ?
+                ';
+            }
+            // User does not exist, add player address info
+            else {
+                $query = '
+                INSERT INTO AddressInfo (street, building, city, country, zipCode, userID)
+                VALUES (?, ?, ?, ?, ?, ?)
+                ';
+            }
             $stmt = $db->prepare($query);
             $stmt->bind_param("ssssss", $street, $building, $city, $country, $zipCode, $userID);
         }
 
-        // Deleting Player's address information
+        // User is trying to delete player address information
         else {
             $query = '
             DELETE FROM AddressInfo
@@ -58,41 +84,29 @@ require_once __DIR__ . '/../protected/adaptation.php';
        $stmt->execute();
        $stmt->free_result();
     }
-    
-    // Get user role priority
-    $query = "
-        SELECT rolePriority
-        FROM UserRole
-        WHERE roleID = ?
-    ";
 
-    $stmt = $db->prepare($query);
-    $stmt->bind_param('s', $_SESSION['role']);
-    $stmt->execute();
-    $stmt->store_result();
-    $stmt->bind_result($priority);    
-    $stmt->fetch();
-    $stmt->free_result();
-
-    if ($priority >= 3) {
+    if ($_SESSION['priority'] >= 2) {
         $query = '
         SELECT 
-        P.playerID, P.firstName, P.lastName, P.positionID, P.userID,
+        A.userID, A.firstName, A.lastName, P.positionName,
         AI.street, AI.building, AI.city, AI.country, AI.zipCode
-        FROM Player as P
-        LEFT JOIN AddressInfo as AI ON P.userID = AI.userID;
+        FROM Account as A
+        JOIN PlayerStats as PS ON A.userID = PS.playerID
+        JOIN Positions as P ON PS.positionID = P.positionID
+        LEFT JOIN AddressInfo as AI ON A.userID = AI.userID
         ';
-
         $stmt = $db->prepare($query);   
     }
-    else if ($priority >= 1) {
+    else if ($_SESSION['priority'] >= 1) {
         $query = '
         SELECT 
-        P.playerID, P.firstName, P.lastName, P.positionID, P.userID,
+        A.userID, A.firstName, A.lastName, P.positionName,
         AI.street, AI.building, AI.city, AI.country, AI.zipCode
-        FROM Player as P
-        LEFT JOIN AddressInfo as AI ON P.userID = AI.userID
-        WHERE P.userID = ?
+        FROM Account as A
+        JOIN PlayerStats as PS ON A.userID = PS.playerID
+        JOIN Positions as P ON PS.positionID = P.positionID
+        LEFT JOIN AddressInfo as AI ON A.userID = AI.userID
+        WHERE A.userID = ?
         '; 
         $stmt = $db->prepare($query);
         $stmt->bind_param('s', $_SESSION['user']);
@@ -101,7 +115,7 @@ require_once __DIR__ . '/../protected/adaptation.php';
         exit;
     }
 
-    $stmt->bind_result($playerID, $firstName, $lastName, $positionID, $userID, $street, $building, $city, $country, $zipCode);
+    $stmt->bind_result($playerID, $firstName, $lastName, $positionName, $street, $building, $city, $country, $zipCode);
     $stmt->execute();
 
     $playerArr = [];
@@ -109,8 +123,7 @@ require_once __DIR__ . '/../protected/adaptation.php';
         $playerArr[$playerID] = (object)[
             'firstName' => $firstName,
             'lastName' => $lastName,
-            'positionID' => $positionID,
-            'userID' => $userID,
+            'position' => $positionName,
             'street' => $street,
             'building' => $building,
             'city' => $city,
@@ -139,7 +152,7 @@ require_once __DIR__ . '/../protected/adaptation.php';
 
     <?php 
     
-    if (isset($_GET['playerID']) && $_GET['playerID'] != '' && $playerArr[$_GET['playerID']]->userID) {
+    if (isset($_GET['playerID']) && isset($playerArr[$_GET['playerID']])) {
         ?>
         <div class="address-box">
 
@@ -153,7 +166,7 @@ require_once __DIR__ . '/../protected/adaptation.php';
                     $curCity = $playerArr[$_GET['playerID']]->city;
                     $curCountry = $playerArr[$_GET['playerID']]->country;
                     $curZip = $playerArr[$_GET['playerID']]->zipCode;
-                    $curPosition = $_SESSION['role'] == 'Player' ? $playerArr[$_GET['playerID']]->positionID : ''; 
+                    $curPosition = $_SESSION['priority'] >= 1 ? $playerArr[$_GET['playerID']]->position : ''; 
 
                     $fullAddress = $curStreet.$curBuilding.' '.$curCity.', '.$curCountry.' '.$curZip;
                 ?>
@@ -163,24 +176,24 @@ require_once __DIR__ . '/../protected/adaptation.php';
             <form action="" method="POST">
                 <h1>Update Address Info for <?= $playerArr[$_GET['playerID']]->firstName.' '.$playerArr[$_GET['playerID']]->lastName ?></h1>
                 <label for="street">Street</label>
-                <input type="text" name="street" id="street">
+                <input type="text" name="street" id="street" required>
                 <label for="building">Building (optional)</label>
                 <input type="text" name="building" id="building">
                 <label for="city">City</label>
-                <input type="text" name="city" id="city">
+                <input type="text" name="city" id="city" required>
                 <label for="country">Country</label>
-                <input type="text" name="country" id="country">
+                <input type="text" name="country" id="country" required>
                 <label for="zip">Zip Code</label>
-                <input type="number" name="zip" id="zip">
-                <input type="hidden" name="userID" value=<?= $playerArr[$_GET['playerID']]->userID ?>>
+                <input type="number" name="zip" id="zip" required>
+                <input type="hidden" name="userID" value=<?= htmlspecialchars($_GET['playerID']) ?>>
                 <input type="submit">
             </form>
         </div>
 
-        <form action="" method="POST">
+        <form class="deleteAddress" action="" method="POST">
             <h1>Delete Address Info for <?= $playerArr[$_GET['playerID']]->firstName.' '.$playerArr[$_GET['playerID']]->lastName ?></h1>
 
-            <input type="hidden" name="userID" value=<?= $playerArr[$_GET['playerID']]->userID ?>>
+            <input type="hidden" name="userID" value=<?= htmlspecialchars($_GET['playerID']) ?>>
             <input type="submit" value="Delete">
         </form>
         <?php 
@@ -217,6 +230,19 @@ require_once __DIR__ . '/../protected/adaptation.php';
       border: 1px solid #ccc; 
       border-radius: 4px;
     }
+    form.deleteAddress {
+        padding-bottom: 100px;
+    }
+    form input[type="submit"] {
+        background: white;
+        border: none;
+        padding: 10px 30px;
+        cursor: pointer;
+        border-radius: 50px;
+    }
+    form input[type="submit"]:hover {
+        background: lightgray;
+    }
 
     .address-box {
         display: flex;
@@ -226,9 +252,8 @@ require_once __DIR__ . '/../protected/adaptation.php';
     .current-address {
         display: flex;
         flex-direction: column;
-        /* justify-content: center; */
     }
-    .current-address p{
+    .current-address p {
         margin: 10px 0;
     }
     .current-address h1 {
