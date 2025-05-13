@@ -56,7 +56,7 @@ include_once("protected/adaptation.php");
             ?>
             <form action="" method="GET">
                 <input type="hidden" name="page" value=3>
-                <button type="submit">Add User to Role</button>
+                <button type="submit">Manage Accounts</button>
             </form>
             <?php
         }   

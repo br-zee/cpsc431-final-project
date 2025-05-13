@@ -151,6 +151,7 @@ INSERT INTO HomeTeam (teamName) VALUES
     ("Cal State Slammers");
 
 INSERT INTO Account (userID, userPassword, userEmail, rolePriority, teamID, firstName, lastName, dateOfBirth) VALUES
+    ("guest", "$2a$12$cQIvQfnDIDcWU2Dd9HVHY.VLKbbejEWrw4hTUBMaWdiMzDujwG19C", "guest@gmail.com", 0, 1, 'Mr', 'Guest', '1323-11-11'),
     ("coach", "$2a$12$7GmTrLDr0eQlPmSCPMPSG.ag8OZyiiiNwVR5MkuSNAqGlNcPh8UdO", "coach@gmail.com", 2, 1, 'Mr', 'Coachman', '1995-05-23'),
     ("manager", "$2a$12$tFxnRUvujeXT9/HKEAjbIuk5gkjyRL/nyOp.wMDl8nlzmXV96yMHC", 'manager@gmail.com', 3, 1, 'Mr', 'Manager', '1980-09-13'),
 
