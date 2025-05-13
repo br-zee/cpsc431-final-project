@@ -72,47 +72,41 @@ if ($selectedPlayerID) {
     $playerStats = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
     $stmt->close();
 }
-$databaseConnect->close();
 
 
-function getSetStats($gameID) {
+// 4) Fetch all set stats
+$query = '
+SELECT *
+FROM SetStats
+ORDER BY gameID ASC
+';
 
-  $databaseConnect = new mysqli(DB_HOST, USER_NAME, USER_PASS, DB_NAME);
-  if ($databaseConnect->connect_error) {
-      die("Connection failed: " . htmlspecialchars($databaseConnect->connect_error));
+$stmt = $databaseConnect->prepare($query);
+$stmt->execute();
+$result = $stmt->get_result();
+$sets = $result->fetch_all();
+
+$setObj = (object)[];
+foreach($sets as $set) {
+   $setData = (object)[
+      'setNumber' => $set[1],
+      'setTimeMins' => $set[2],
+      'setTimeSecs' => $set[3],
+      'homeScore' => $set[4],
+      'oppScore' => $set[5],
+    ];
+
+  $gameID = $set[0];
+  if (!isset($setObj->$gameID)) {
+    $setObj->$gameID = array($setData);
+  } else {
+    array_push($setObj->$gameID, $setData);
   }
-
-  $query = '
-  SELECT setNumber, setTimeMins, setTimeSecs, homeScore, oppScore FROM SetStats
-  WHERE gameID = ?
-  ';
-
-  $stmt = $databaseConnect->prepare($query);
-  $stmt->bind_param('s', $gameID);
-  $stmt->execute();
-  $result = $stmt->get_result();
-  $sets = $result->fetch_all();
-
-  $setArr = [];
-  foreach($sets as $set) {
-    array_push($setArr,
-      (object)[
-        'setNumber' => $set[0],
-        'setTimeMins' => $set[1],
-        'setTimeSecs' => $set[2],
-        'homeScore' => $set[3],
-        'oppScore' => $set[4]
-      ]
-    );
-  }
-  
-  $stmt->free_result();
-  $result->free_result();
-  $databaseConnect->close();
-
-  return $setArr;
 }
 
+$stmt->free_result();
+$result->free_result();
+$databaseConnect->close();
 ?>
 
 <script>
@@ -136,15 +130,33 @@ function getSetStats($gameID) {
       <p>No games found.</p>
     <?php else: ?>
       <ul class="game-list">
-        <?php foreach ($games as $g): ?>
-          <li class="<?= $g['result']==='win' ? 'win' : 'loss' ?> game" onclick="openGame(event)" value=<?=$g['gameID']?>>
+        <?php foreach ($games as $g): 
+            $id = $g['gameID'];
+            $gameSets = $setObj->$id;
+
+            $homeScore = 0;
+            $oppScore = 0;
+
+            foreach ($gameSets as $set) {
+              $homeScore += $set->homeScore;
+              $oppScore += $set->oppScore;
+            }
+
+            $gameResult = ($homeScore == $oppScore 
+              ? 'tie'
+              : $homeScore > $oppScore)
+                ? 'win'
+                : 'loss';
+          ?>
+          <li class="<?= $gameResult ?> game" onclick="openGame(event)" value=<?=$g['gameID']?>>
             <?= date('M d, Y', strtotime($g['gameDate'])) ?>
             vs <?= htmlspecialchars($g['teamName']) ?> (<?= htmlspecialchars($g['schoolName']) ?>)
-            — <?= ucfirst(htmlspecialchars($g['result'])) ?>
+            — <?= ucfirst(htmlspecialchars($gameResult)) ?>
 
             <div class="game-stats" style="display:none;">
               <?php 
-                $sets = getSetStats($g['gameID']);
+                $id = $g['gameID'];
+                $sets = $setObj->$id;
                 
                 foreach($sets as $set) {
                   ?>
