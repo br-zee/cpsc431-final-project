@@ -59,12 +59,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     } else {   
 
         $insert = "
-            INSERT INTO Account
-            VALUES (?, ?, ?, 'Guest')
+            INSERT INTO Account (userID, userPassword, userEmail, rolePriority, teamID, firstName, lastName, dateOfBirth)
+            VALUES (?, ?, ?, 0, 1, 'new', 'user', '1999-01-01')
         ";
 
         $stmt = $db->prepare($insert);
-        $stmt->bind_param("sss", $username, $password, $email);
+
+        $hashedPassword = password_hash($password, PASSWORD_BCRYPT);
+        $stmt->bind_param("sss", $username, $hashedPassword, $email);
         $stmt->execute();
 
         $stmt->close();
